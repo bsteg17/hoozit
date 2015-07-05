@@ -1,18 +1,24 @@
 var http = require('http'),
-    fs = require('fs');
+	express = require('express'),
+	url = require('url');
 
-var html;
-fs.readFile('./index.html', function (err, buffer) {
-    if (err) {
-        throw err; 
-    }
-    html = buffer;
-    console.log(html);
-    http.createServer(function(request, response) {  
-        response.writeHeader(200, {"Content-Type": "text/html"});
-        response.write(buffer);  
-        response.end();
-    }).listen(8080);
+const PORT=8080; 
+const CLIENT_ID = '40e3aa0f3dfd4cf9ba6c4034c0697f55';
+const GAME_URI = "http://localhost:8080/game";
+
+var app = express();
+var code;
+
+var server = http.createServer(app).listen(PORT);
+
+app.get('/', function (request, response) {
+	response.redirect('https://api.instagram.com/oauth/authorize/?client_id='+CLIENT_ID+'&redirect_uri=http://localhost:8080/game&response_type=code');
 });
 
-console.log(html);
+app.get('/game', function (request, response) {
+	if (request.hasOwnProperty('error')) {
+		response.send("GOOFED");
+		return;
+	}
+	response.send(request.code);
+});
