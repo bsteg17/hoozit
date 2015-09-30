@@ -13,45 +13,47 @@ var app = express();
 var code;
 
 var server = http.createServer(app).listen(PORT);
+var user_info;
 
-app.get('/', function (request, response) {
-	response.redirect('https://api.instagram.com/oauth/authorize/?client_id='+CLIENT_ID+'&redirect_uri=http://localhost:8080/game&response_type=code');
+app.get('/', function (req, res) {
+	res.redirect('https://api.instagram.com/oauth/authorize/?client_id='+CLIENT_ID+'&redirect_uri=http://localhost:8080/game&response_type=code');
 });
 
-app.get('/game', function (request, response) {
+app.get('/game', function (req, res) {
+	
+	//Get code to exchange for token
+	code = req.url.split('=')[1];
 
-	code = request.url.split('=')[1];
+	//POST request for token
+	
+	request.post(
+		'https://api.instagram.com/oauth/access_token',
+		{ form: { client_id: CLIENT_ID,
+			client_secret: CLIENT_SECRET,
+			grant_type: "authorization_code",
+			redirect_uri: GAME_URI,
+			code: code }
+		},
+		 function (err, resp, body) {
+			user_info = JSON.parse(body);
+			token_req(user_info);
+		 }
+	);
 
-    /*
-	path = //"/oauth/access_token?"
-			"client_id="+CLIENT_ID
-			+"&client_secret="+CLIENT_SECRET
-			+"&grant_type="+GRANT_TYPE
-			+"&redirect_url="+GAME_URI
-			+"&code="+code;
-
-	path = {client_id:CLIENT_ID,
-			client_secret:CLIENT_SECRET,
-			grant_type:GRANT_TYPE,
-			redirect_url:GAME_URI,
-			code:code};
-	*/
-
-	request({
-    	url: 'api.instagram.com/oauth/access_token', //URL to hit
-    	qs: {from: 'blog example', time: +new Date()}, //Query string data
-    	method: 'POST',
-    	//Lets post the following key/values as form
-    	form: {client_id:CLIENT_ID,
-			client_secret:CLIENT_SECRET,
-			grant_type:GRANT_TYPE,
-			redirect_url:GAME_URI,
-			code:code}
-	}, function(error, response, body){
-	    if(error) {
-	        console.log(error);
-	    } else {
-	        console.log(response.statusCode, body);
-	    }
-	});
+	res.end();
 });
+
+var token_req = function (user_info) {
+	console.log(user_info);
+	console.log(user_info['user']['id']);
+	console.log(user_info['access_token']);
+	options = {
+		host: 'www.instagram.com',
+		path: '/publicapi/v1/users/'+user_info['user']['id']+'/follows?access_token='+user_info['access_token']
+	};
+	http.request(options, function (resp) {
+		resp.on('data', function (data) {
+			console.log(data);
+		});
+	}).end();
+}
