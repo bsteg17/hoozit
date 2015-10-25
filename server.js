@@ -26,7 +26,7 @@ app.get('/game', function (req, res) {
 	code = req.url.split('=')[1];
 
 	//POST request for token
-	
+	var user_info;
 	request.post(
 		'https://api.instagram.com/oauth/access_token',
 		{ form: { client_id: CLIENT_ID,
@@ -36,18 +36,26 @@ app.get('/game', function (req, res) {
 			code: code }
 		},
 		 function (err, resp, body) {
+		 	if (err) {
+		 		//console.log(err);
+		 	} else {
 			user_info = JSON.parse(body);
-			token_req(user_info);
-		 }
+			res.send(user_info);
+		}
+		}
 	);
-
-	res.end();
 });
 
-var token_req = function (user_info) {
+var insta_call = function (user_info, endpoint) {
 
-	curl.request('https://api.instagram.com/v1/users/2245600125/follows?access_token='+user_info['access_token'], function (err, resp) {
-		console.log(resp);
+	curl.request('https://api.instagram.com/v1/users/'+user_info['user']['id']+'/'+endpoint+'?access_token='+user_info['access_token'], function (err, resp) {
+		
+		resp = JSON.parse(resp);
+		if (resp['meta']['code'] == 200) {
+			return resp;
+		} else {
+			console.log("Couldn't make connection with Instagram.");
+		}
 	});
 
 	/*
