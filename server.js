@@ -11,6 +11,7 @@ const CLIENT_SECRET = '371d5fdcbfbb4cca9b956547197230db';
 const GAME_URI = "http://localhost:8080/game";
 
 var app = express();
+app.use(express.static(__dirname + '/public'));
 var code;
 
 var server = http.createServer(app).listen(PORT);
@@ -40,19 +41,22 @@ app.get('/game', function (req, res) {
 		 		//console.log(err);
 		 	} else {
 			user_info = JSON.parse(body);
-			res.send(user_info);
+			insta_call(user_info, "follows", function(resp) {
+			   //res.send(resp);
+			   res.render("index.html");
+			});
 		}
 		}
 	);
 });
 
-var insta_call = function (user_info, endpoint) {
+var insta_call = function (user_info, endpoint, callback) {
 
 	curl.request('https://api.instagram.com/v1/users/'+user_info['user']['id']+'/'+endpoint+'?access_token='+user_info['access_token'], function (err, resp) {
 		
 		resp = JSON.parse(resp);
 		if (resp['meta']['code'] == 200) {
-			return resp;
+			callback(resp);
 		} else {
 			console.log("Couldn't make connection with Instagram.");
 		}
