@@ -11,14 +11,13 @@ const CLIENT_SECRET = '371d5fdcbfbb4cca9b956547197230db';
 const GAME_URI = "http://localhost:8080/game";
 
 var app = express();
-app.use(express.static(__dirname + '/public'));
 var code;
 
 var server = http.createServer(app).listen(PORT);
 var user_info;
 
 app.get('/', function (req, res) {
-	res.redirect('https://api.instagram.com/oauth/authorize/?client_id='+CLIENT_ID+'&redirect_uri=http://localhost:8080/game&response_type=code');
+	res.redirect('https://api.instagram.com/oauth/authorize/?client_id='+CLIENT_ID+'&redirect_uri=http://localhost:'+PORT+'/game&response_type=code');
 });
 
 app.get('/game', function (req, res) {
@@ -37,13 +36,24 @@ app.get('/game', function (req, res) {
 			code: code }
 		},
 		 function (err, resp, body) {
+
 		 	if (err) {
 		 		//console.log(err);
 		 	} else {
 			user_info = JSON.parse(body);
 			insta_call(user_info, "follows", function(resp) {
 			   //res.send(resp);
-			   res.render("index.html");
+			   
+			   images = [];
+			   for (var i = 0; i < resp["data"].length; i++) {
+			   	images.push("<img src=\""+resp["data"][i]["profile_picture"]+"\" height=200 width=200>");
+			   }
+			   html = "<html><head><title>Insta</title></head><body><p>This is thy page.</p>";
+			   for (var i = 0; i < images.length; i++) {
+			   	html += images[i];
+			   }
+			   html += "</body></html>";
+			   res.send(html);
 			});
 		}
 		}
