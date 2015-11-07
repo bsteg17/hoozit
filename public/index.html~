@@ -1,0 +1,10 @@
+<html>
+<head>
+<title>hi</title>
+</head>
+<body>
+	<div id="messages"></div>
+	<input type="submit" value="Submit">
+	<script src="/socket.io/socket.io.js"></script>
+</body>
+</html>

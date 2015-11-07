@@ -1,102 +1,55 @@
-var http = require('http'),
-	express = require('express'),
-	url = require('url'),
-	request = require('request'),
-	curl = require('curlrequest');
+// Create a new Express application
+var express = require('express'),
+http = require('http');
+app = express();
+server = http.createServer(app).listen(8080);
+app.use(express.static('public'));
 
-const PORT=8080; 
-const CLIENT_ID = '40e3aa0f3dfd4cf9ba6c4034c0697f55';
-const GRANT_TYPE = 'authorization_code';
-const CLIENT_SECRET = '371d5fdcbfbb4cca9b956547197230db';
-const GAME_URI = "http://localhost:8080/game";
+/**************************************************
+** NODE.JS REQUIREMENTS
+**************************************************/
+var util = require("util"),					// Utility resources (logging, object inspection, etc)
+	io = require("socket.io");		// Socket.IO	// Player class
 
-var app = express();
-var code;
 
-var server = http.createServer(app).listen(PORT);
-var user_info;
+/**************************************************
+** GAME VARIABLES
+**************************************************/
+var socket;		// Socket controller
 
-app.get('/', function (req, res) {
-	res.redirect('https://api.instagram.com/oauth/authorize/?client_id='+CLIENT_ID+'&redirect_uri=http://localhost:'+PORT+'/game&response_type=code');
-});
 
-app.get('/game', function (req, res) {
-	
-	//Get code to exchange for token
-	code = req.url.split('=')[1];
+/**************************************************
+** GAME INITIALISATION
+**************************************************/
+function init() {
 
-	//POST request for token
-	var user_info;
-	request.post(
-		'https://api.instagram.com/oauth/access_token',
-		{ form: { client_id: CLIENT_ID,
-			client_secret: CLIENT_SECRET,
-			grant_type: "authorization_code",
-			redirect_uri: GAME_URI,
-			code: code }
-		},
-		 function (err, resp, body) {
+	// Set up Socket.IO to listen on port 8080
+	socket = io.listen(server);
 
-		 	if (err) {
-		 		//console.log(err);
-		 	} else {
-			user_info = JSON.parse(body);
-			insta_call(user_info, "follows", function(resp) {
-			   //res.send(resp);
-			   
-			   images = [];
-			   for (var i = 0; i < resp["data"].length; i++) {
-			   	images.push("<img src=\""+resp["data"][i]["profile_picture"]+"\" height=200 width=200>");
-			   }
-			   html = "<html><head><title>Insta</title></head><body><p>This is thy page.</p>";
-			   for (var i = 0; i < images.length; i++) {
-			   	html += images[i];
-			   }
-			   html += "</body></html>";
-			   res.send(html);
-			});
-		}
-		}
-	);
-});
+	// Only use WebSockets
+	socket.set("transports", ["websocket"]);
+	// Restrict log output
+	socket.set("log level", 2);
 
-var insta_call = function (user_info, endpoint, callback) {
+	// Start listening for events
+	setEventHandlers();
+};
 
-	curl.request('https://api.instagram.com/v1/users/'+user_info['user']['id']+'/'+endpoint+'?access_token='+user_info['access_token'], function (err, resp) {
-		
-		resp = JSON.parse(resp);
-		if (resp['meta']['code'] == 200) {
-			callback(resp);
-		} else {
-			console.log("Couldn't make connection with Instagram.");
-		}
-	});
 
-	/*
-	console.log(user_info);
-	console.log(user_info['user']['id']);
-	console.log(user_info['access_token']);
-	
-	options = {
-		host: 'www.instagram.com',
-		path: '/v1/users/self/follows?access_token='+user_info['access_token'],
-		//path: 'v1/tags/nofilter/media/recent?client_id='+CLIENT_ID
-		encoding: null
-	};
+/**************************************************
+** GAME EVENT HANDLERS
+**************************************************/
+var setEventHandlers = function() {
+	// Socket.IO
+	socket.sockets.on("connection", function() {console.log("hi");});
+};
 
-	var full_data;
-	http.get(options, function (resp) {
-
-		//console.log(resp);
-
-		resp.on('data', function (data) {
-			console.log(data.statusCode);
-			full_data += data.read();
-		});
-		resp.on('end', function() {
-			var parsed = JSON.parse(full_data);
-			console.log(parsed);
-		});
-		
-	});*/
+// New socket connection
+function onSocketConnection(client) {
+	console.log("New user: "+client.id);
 }
+
+/**************************************************
+** RUN THE GAME
+**************************************************/
+init();
