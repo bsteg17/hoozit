@@ -6,17 +6,27 @@
 	<div id="messages"></div>
 	<input type="text" value="Say anything">
 	<div id="submit" style="background-color: #b0c4de; height: 200px; width: 200px;"></div>
-	<script src="/socket.io/socket.io.js"></script>
+	<script src="http://localhost:8000/socket.io/socket.io.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 	<script>
-	socket = io.connect();
+$(document).ready(function() {
+	socket = io.connect("http://localhost:8000", {transports: ["websocket"]});
 	socket.on("connection", function() {
 		console.log("Connection established.");
 	});
 
-	socket.on("echo", function() {
-		socket.emit("print", {text: "hello world"});
+	socket.on("echo", function(message) {
+		console.log(message.text);
 	});
+
+	$("#submit").click(sendMessage);
+
+	function sendMessage(message) {
+		/*console.log("clicked");
+		//socket.emit("message", {sender:socket.id, message:$("text").value});
+		socket.emit("echo", {nothing:null});*/
+	};
+});
 
 /*
 		//on submit button click

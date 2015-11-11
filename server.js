@@ -2,7 +2,7 @@
 var express = require('express'),
 http = require('http');
 app = express();
-server = http.createServer(app).listen(8080);
+server = http.createServer(app).listen(8000);
 app.use(express.static('public'));
 
 /**************************************************
@@ -28,8 +28,6 @@ function init() {
 
 	// Only use WebSockets
 	socket.set("transports", ["websocket"]);
-	// Restrict log output
-	socket.set("log level", 2);
 
 	// Start listening for events
 	setEventHandlers();
@@ -41,12 +39,25 @@ function init() {
 **************************************************/
 var setEventHandlers = function() {
 	// Socket.IO
-	socket.sockets.on("connection", function() {console.log("hi");});
+	socket.sockets.on("connection", onSocketConnection);
+	socket.sockets.on("message", incomingMessage);
+	socket.sockets.on("echo", function() {console.log("Hello world")});
 };
 
 // New socket connection
 function onSocketConnection(client) {
 	console.log("New user: "+client.id);
+	/*
+	console.log("New user: "+client.id);
+	socket.emit("echo", {text:"hello world"});
+	*/
+}
+
+function incomingMessage(message) {
+	console.log("New message: \n");
+	console.log(message.sender);
+	console.log("\n");
+	console.log(message.text);
 }
 
 /**************************************************
