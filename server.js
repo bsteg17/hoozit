@@ -30,7 +30,7 @@ function init() {
 	socket.set("transports", ["websocket"]);
 
 	// Start listening for events
-	setEventHandlers();
+	socket.sockets.on("connection", onSocketConnection);
 };
 
 
@@ -39,7 +39,6 @@ function init() {
 **************************************************/
 var setEventHandlers = function() {
 	// Socket.IO
-	socket.sockets.on("connection", onSocketConnection);
 	socket.sockets.on("message", incomingMessage);
 	socket.sockets.on("echo", function() {console.log("Hello world")});
 };
@@ -47,6 +46,7 @@ var setEventHandlers = function() {
 // New socket connection
 function onSocketConnection(client) {
 	console.log("New user: "+client.id);
+	setEventHandlers();
 	/*
 	console.log("New user: "+client.id);
 	socket.emit("echo", {text:"hello world"});

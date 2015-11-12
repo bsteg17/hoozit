@@ -13,13 +13,16 @@ $(document).ready(function() {
 	socket = io.connect("http://localhost:8000", {transports: ["websocket"]});
 	socket.on("connection", function() {
 		console.log("Connection established.");
+		setEventHandlers();
 	});
 
-	socket.on("echo", function(message) {
-		console.log(message.text);
-	});
-
-	$("#submit").click(sendMessage);
+	function setEventHandlers() {
+		socket.on("echo", function(message) {
+			console.log(message.text);
+		});
+	
+		$("#submit").click(sendMessage);
+	}
 
 	function sendMessage(message) {
 		/*console.log("clicked");
