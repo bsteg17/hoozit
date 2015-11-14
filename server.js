@@ -16,7 +16,7 @@ var util = require("util"),					// Utility resources (logging, object inspection
 ** GAME VARIABLES
 **************************************************/
 var socket;		// Socket controller
-
+var users = [];
 
 /**************************************************
 ** GAME INITIALISATION
@@ -31,9 +31,18 @@ function init() {
 
 	// Start listening for events
 	socket.sockets.on("connection", function onSocketConnection (client) {
+
+		users.push(client.id);
 		console.log("New user: "+client.id);
+
+		//once enough users are in the chatroom, enable chatting
+		if (users.length === 2) {
+			client.emit("chatReady");
+			client.broadcast.emit("chatReady");
+			//keep further clients from connecting
+		}
+
 		setEventHandlers(client);
-		client.emit("echo", {text: "Hello world"});
 	});
 };
 
@@ -44,15 +53,15 @@ function init() {
 
 var setEventHandlers = function(client) {
 	// Socket.IO
-	client.on("message", incomingMessage);
-	client.on("echo", function(message) {console.log(message.text)});
+	client.on("message", messageHandler);
 };
 
-function incomingMessage(message) {
-	console.log("New message: \n");
-	console.log(message.sender);
-	console.log("\n");
-	console.log(message.text);
+function messageHandler(message) {
+	for (i = 0; i < users.length; i++) {
+		if (users[i] != message.sender) {
+			socket.to(users[i]).emit('incomingMessage', message);
+		}
+	}
 }
 
 /**************************************************
