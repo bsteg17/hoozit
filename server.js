@@ -30,28 +30,23 @@ function init() {
 	socket.set("transports", ["websocket"]);
 
 	// Start listening for events
-	socket.sockets.on("connection", onSocketConnection);
+	socket.sockets.on("connection", function onSocketConnection (client) {
+		console.log("New user: "+client.id);
+		setEventHandlers(client);
+		client.emit("echo", {text: "Hello world"});
+	});
 };
 
 
 /**************************************************
 ** GAME EVENT HANDLERS
 **************************************************/
-var setEventHandlers = function() {
-	// Socket.IO
-	socket.sockets.on("message", incomingMessage);
-	socket.sockets.on("echo", function() {console.log("Hello world")});
-};
 
-// New socket connection
-function onSocketConnection(client) {
-	console.log("New user: "+client.id);
-	setEventHandlers();
-	/*
-	console.log("New user: "+client.id);
-	socket.emit("echo", {text:"hello world"});
-	*/
-}
+var setEventHandlers = function(client) {
+	// Socket.IO
+	client.on("message", incomingMessage);
+	client.on("echo", function(message) {console.log(message.text)});
+};
 
 function incomingMessage(message) {
 	console.log("New message: \n");
