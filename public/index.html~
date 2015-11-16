@@ -3,8 +3,65 @@
 <title>hi</title>
 </head>
 <body>
-	<div id="messages"></div>
-	<input type="submit" value="Submit">
-	<script src="/socket.io/socket.io.js"></script>
+	<table>
+	<tbody>
+	<td>
+	<input id="text" type="text" value="Say anything">
+	<div id="submit" style="background-color: #b0c4de; height: 50px; width: 200px;">Waiting for connection...</div>
+	</td>
+	<td>
+	<div id="messages" style="float: right; width: 200px;"></div>
+	</td>
+	<script src="http://localhost:8000/socket.io/socket.io.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	<script>
+$(document).ready(function() {
+	socket = io.connect("http://localhost:8000", {transports: ["websocket"]});
+
+	socket.on("connect", onSocketConnection);
+
+	function onSocketConnection() {
+		console.log("Connection established.");
+		setEventHandlers();
+	};
+
+	function setEventHandlers() {
+		//when sufficient users have joined the chatroom
+		socket.on("chatReady", function () {
+			$("#submit").text("Chat").css("background-color: #45g3d4;");
+			$("#submit").click(sendMessage);
+		});
+	
+		socket.on("incomingMessage", function (message) {
+
+			$("#messages").append("<div style='background-color: #222222; height: 50px;'><em>"+message.sender+"</em><br/>"+message.text+"</div>");
+
+		});
+	};
+
+	function sendMessage(message) {
+		console.log("clicked");
+		socket.emit("message", {sender:socket.id, text:$("#text").val()});
+	};
+});
+
+$(window).on('beforeunload', function(){
+    socket.close();
+});
+/*
+		//on submit button click
+		button = $("#submit");
+		button.click( function() {
+			text = $("text").value;
+			socket.emit("message", {text:text});
+			console.log("click");
+		});
+
+		//on incoming message
+		socket.on("message", function(message) {
+			display(message.text);
+		});
+*/
+	</script>
 </body>
 </html>
