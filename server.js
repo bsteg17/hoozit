@@ -1,3 +1,5 @@
+//Dependencies and constants
+
 var http = require('http'),
 	express = require('express'),
 	url = require('url'),
@@ -13,16 +15,25 @@ const GAME_URI = "http://localhost:8080/game";
 var app = express();
 var code;
 
+
+//Set a server to listen on PORT, server is configured by Express
+
 var server = http.createServer(app).listen(PORT);
 var user_info;
+
+
+//The landing page will redirect the user to Instagram API's authentication page
 
 app.get('/', function (req, res) {
 	res.redirect('https://api.instagram.com/oauth/authorize/?client_id='+CLIENT_ID+'&redirect_uri=http://localhost:'+PORT+'/game&response_type=code');
 });
 
+
+//After authenticating w Instagram, user is redirected to /game, attached to the response is Insta's permission to use the user's info
+
 app.get('/game', function (req, res) {
 	
-	//Get code to exchange for token
+	//Get code (permission) to exchange for access token
 	code = req.url.split('=')[1];
 
 	//POST request for token
@@ -40,10 +51,14 @@ app.get('/game', function (req, res) {
 		 	if (err) {
 		 		//console.log(err);
 		 	} else {
+
+
 			user_info = JSON.parse(body);
 			insta_call(user_info, "follows", function(resp) {
 			   //res.send(resp);
 			   
+			
+			//Display images (profile pics of accts user follows) on /game page
 			   images = [];
 			   for (var i = 0; i < resp["data"].length; i++) {
 			   	images.push("<img src=\""+resp["data"][i]["profile_picture"]+"\" height=200 width=200>");
