@@ -1,0 +1,38 @@
+1. User signs into Instagram.
+
+2. User invites another user (must be a minimum number of Instagram users that both users follow.)
+    --Maybe we could have an option that allows users to play a game that only uses profiles that have
+    a certain number of followers, or profiles that have a number of followers within a given range.
+    
+3. Game begins
+
+4. Both players pick one profile picture out of a set of Instagram users that they both follow.  This set of
+   users is the same for both players. However, the pictures for each player are arranged randomly.  These 
+   "grids" of users will be used by the players to deduce the identity of the opposing player's chosen profile.
+   The arrangement of the "grids" remain the same throughout each match.
+   
+5. After the players have chosen their pictures, the first turn is randomly decided.
+
+6. Player 1 (player that goes first) asks Player 2 a question.
+   --what is to keep players from ignoring whose turn it is and just using the chat function?
+     --maybe players cannot "fade" any cells on their grids when it is their turn to ask a question.
+     --players can only submit one chat per turn? (easy, but draconian, way of doing things.)
+     
+7. Player 2 responds to this question "yes" / "no" / "imo, yes" / "imo, no".
+
+8. Based on Player 2's response to Player 1's question, Player 1 will now eliminate all suspects that do not
+   conform to what Player 1 now knows about Player 2's chosen picture.  Each player will eliminate suspects by clicking on pictures on their "grids", which will fade or have big X's over them after being clicked on.  Both players can see which cells have been faded on the other player's grid; however, neither player can see the actual contents of his opponent's cells (think of it like looking at your opponent's hand in a card game--you can't see the cards' suits or ranks, just the uniform backs of the cards. The one piece of info gathered by looking at your opponent's hand is the number of cards they're holding.)
+   
+9. Player 2's answer and Player 1's question are both saved. Also saved are the pictures that were eliminated based on the answer to that question. When each player's chosen pictures are revealed at the end of each match, the questions that you asked of your opponent will be displayed alongside their answers.  Each player will evaluate those answers for accuracy and award the opposing player an "honesty" rating which will contribute to the user's overall "honesty" rating.
+  --We may display these in some form later.
+    --See what people are asking about you (sounds like kerosine to a cyberbullying lighter though.)
+
+10. Repeat steps 6 through 9 with Player 2 replaced with Player 1 and visa versa. Repeat until a player guesses his opponent's chosen profile.
+  --If a player asks his opponent if his opponent's chosen profile is a specific profile, we need a different way for the player to guess.
+    --Player could click on a button on the guessed profile picture in his own "grid" that indicates he is guessing a specific individual.
+    --A question containing a handle (@example) could automatically be taken by the program to mean that the player is guessing a specific person.
+      --We could only allow one handle per question.
+      
+11. When a player correctly guesses his opponent's chosen pic, game ends and win/lost totals are adjusted for each user.  Players also rate each other's "honesty" as described above.
+
+12. Ask players for "rematch?" or "Find new match." 
